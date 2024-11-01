@@ -1,0 +1,11 @@
+{
+  "modules_preproc": [
+    "oggm_shop"
+  ],
+  "modules_process": [],
+  "modules_postproc": [
+    "write_ncdf"
+  ],
+  "oggm_RGI_ID": "# Check if the directory already exists",
+  "oggm_RGI_version": 7
+}
