@@ -4,7 +4,7 @@
 - e.g., /this_dir/aletsch --> all scripts contained in $this_dir (you need .json file for oggm, Contour2geo.py, glacier dirs, and the scripts detailed below) 
 
 ------------------------------------------------------
-# STEP 1 Extract the netCDF file using IGM and OGGM #
+### STEP 1 Extract the netCDF file using IGM and OGGM #
 ------------------------------------------------------
 
 source get_outline.sh to run it 
@@ -14,7 +14,7 @@ source get_outline.sh to run it
 	- e.g., this_dir/file.nc --> this_dir/glacier_name/file.nc 
 
 ------------------------------------------------------
-# STEP 2 Open QGIS and run 2-polygonise.py           #
+### STEP 2 Open QGIS and run 2-polygonise.py           #
 ------------------------------------------------------
 
 - open the python pluggin, then open 2-polygonise.py
@@ -25,14 +25,14 @@ source get_outline.sh to run it
 - you'll have to save the new file and load it again with script 3 (this should ideally be fixed and included in one giant script)
 
 ------------------------------------------------------
-# STEP 3 Run 3-save_xy_coords.py                     #
+### STEP 3 Run 3-save_xy_coords.py                     #
 ------------------------------------------------------
 
 - this script populates the layer with x and y coordinates (in whatever CRS they are) 
 - saving doesn't work, save it manually to your glacier dir (NEEDS FIXING because it's annoying!!!) 
 
 ------------------------------------------------------
-# STEP 4 Run 4-get_mesh.sh                           #
+### STEP 4 Run 4-get_mesh.sh                           #
 ------------------------------------------------------
 
 - this converts the csv file to a readable .txt file 
