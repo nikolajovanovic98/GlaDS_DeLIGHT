@@ -3,9 +3,8 @@
     "oggm_shop"
   ],
   "modules_process": [],
-  "modules_postproc": [
-    "write_ncdf"
-  ],
-  "oggm_RGI_ID": "# Check if the directory already exists",
-  "oggm_RGI_version": 7
+  "modules_postproc": [],
+  "oggm_RGI_ID": "RGI2000-v7.0-G-11-03116",
+  "oggm_RGI_version": 7,
+  "oggm_thk_source": "millan_ice_thickness"
 }
