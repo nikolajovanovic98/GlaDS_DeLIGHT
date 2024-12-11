@@ -1,1 +1,0 @@
-### GlaDS by Nikola Jovanovic
