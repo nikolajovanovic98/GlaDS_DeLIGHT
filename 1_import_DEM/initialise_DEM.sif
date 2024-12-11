@@ -1,0 +1,153 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                                       !!
+!! Initialise bedDEM                     !!
+!!                                       !!
+!! Olivier Gagliardini                   !!
+!!                                       !!
+!!                                       !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+check keywords warn
+echo on
+
+include "Physical_Parameters.IN"
+
+Header
+  Mesh DB "." "ALE1_mesh"
+End
+
+Constants
+  Water Density = Real #rhow
+End
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Simulation
+  Coordinate System  =  Cartesian 3D 
+  Simulation Type = Steady        
+
+  !! Internal Extrusion
+  include Extrusion.sif
+
+  Steady State Min Iterations = 1
+  Steady State Max Iterations = 1
+
+  Output File = "ale_DEM.result"
+  Post File = "ale_DEM.vtu"
+  max output level = 3 
+End
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! The ice 
+Body 1
+  Equation = 1
+End
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Solver 1
+  Exec Solver = "Before Simulation"
+  Equation = "Read DEMs"
+  Variable = -nooutput "dumy"
+
+  Procedure = "GridDataReader" "GridDataReader"
+  
+  !---- NOTE: File is case sensitive, String is not!
+  Filename = File "ALE_mesh/input_saved.nc"
+  X Dim Name = File "x"
+  Y Dim Name = File "y"
+
+  X Var Name = File "x"
+  Y Var Name = File "y"
+
+  !--- Interpolation variables
+  X Epsilon  = Real 1.0e-2
+  Y Epsilon  = Real 1.0e-2
+  Time Epsilon  = Real 0.01
+
+  Interpolation Bias = Real 0.0
+  Interpolation Multiplier = Real 1.0
+
+  Is Time Counter = Logical False
+
+  Variable 1 = File "ubed"  
+  Variable 2 = File "usurf"  
+
+
+  Exported Variable 1 = "ubed"
+  Exported Variable 2 = "usurf"
+End
+
+Solver 2
+  Exec Solver = "Before Simulation"
+  Equation = "Read DEMs 2"
+  Variable = -nooutput "dumy"
+
+  Procedure = "GridDataReader" "GridDataReader"
+  
+  !---- NOTE: File is case sensitive, String is not!
+  Filename = File "ALE_mesh/input_saved.nc"
+  X Dim Name = File "x"
+  Y Dim Name = File "y"
+
+  X Var Name = File "x"
+  Y Var Name = File "y"
+
+  !--- Interpolation variables
+  X Epsilon  = Real 150 !1.0e-2
+  Y Epsilon  = Real 150 !1.0e-2
+  Time Epsilon  = Real 0.01
+
+  Interpolation Bias = Real 0.0
+  Interpolation Multiplier = Real 1.0
+
+  Is Time Counter = Logical False
+
+  Variable 1 = File "usurf"  
+End  
+
+
+Solver 3
+  Equation = "MapCoordinate"
+  Procedure = "StructuredMeshMapper" "StructuredMeshMapper"
+
+  Active Coordinate = Integer 3
+
+  Displacement Mode = Logical False
+
+  Correct Surface = Logical True
+  Minimum Height = Real #MinH
+
+  ! Top and bottom surfaces defined from variables
+  Top Surface Variable Name = String "usurf"
+  Bottom Surface Variable Name = String "ubed"
+End
+
+Solver 4
+  Equation = "NormalVector"
+  Procedure = "ElmerIceSolvers" "ComputeNormalSolver"
+  Variable = "Normal Vector"
+  Variable DOFs = 3
+  Optimize Bandwidth = Logical False
+  ComputeAll = Logical False
+End
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Equation 1
+  Active Solvers(4) = 1 2 3 4
+End
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! lateral side of the glacier 
+Boundary Condition 1
+  Target Boundaries = 1
+End
+
+! cavity roof and Bedrock 
+Boundary Condition 2
+  Name = "bed"
+  
+  ComputeNormal = Logical True
+End
+
+! Upper Surface
+Boundary Condition 3
+End
