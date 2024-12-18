@@ -6,12 +6,18 @@
 !! Following SHMIP Example         !!
 !!                                 !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! MATC for now (SHMIP test) 
+! Written in LUA (SHMIP test) 
+
+!---LUA BEGIN
+! function minHydroPot(t)
+!   if t<1746.5 then return 1 else return -1 end
+! end
+!---LUA END
 
 !check keyword warn 
 echo on 
 
-!$Bnum = "B5" 
+!#Bnum = "B5" 
 $namerun = "glads_3d_niki_"
 
 include "Physical_Parameters.IN" 
@@ -25,10 +31,10 @@ End
 !---------------------------------------------------
 
 Constants 
-  Latent Heat         = Real $Lw
-  Gravity Norm        = Real $gravity
-  Fresh Water Density = Real $rhow
-  Ice Density         = Real $rhoi
+  Latent Heat         = Real #Lw
+  Gravity Norm        = Real #gravity
+  Fresh Water Density = Real #rhow
+  Ice Density         = Real #rhoi
   Sheet Thickness Variable Name = String "Sheet Thickness"
   Hydraulic Potential Variable Name = String "Hydraulic Potential"
   Channel Area Variable Name = String "Channel Area" 
@@ -36,7 +42,7 @@ Constants
   Surface Variable Name = String "usurf" 
 End  
 
-!$Startyear=0.0
+!#Startyear=0.0
 
 !---------------------------------------------------
 !---------------- SIMULATION -----------------------
@@ -49,9 +55,9 @@ Simulation
   Timestepping Method = "bdf" 
   BDF Order = 1
 
-  Timestep Intervals(1) = $Iter 
-  Output Intervals(1) = $OutPut
-  Timestep Sizes(1) = $dtIni 
+  Timestep Intervals(1) = #Iter 
+  Output Intervals(1) = #OutPut
+  Timestep Sizes(1) = #dtIni 
 
   Steady State Max Iterations = 1 
   Steady State Min Iterations = 1
@@ -65,7 +71,7 @@ Simulation
   ! Restart? Or loading usurf and ubed? 
   Restart File = "ale_DEM.result"
   !Restart Position = -1 
-  !Restart Time = Real $Startyear
+  !Restart Time = Real #Startyear
   Restart Before Initial Conditions = Logical True
 
   Post File = $namerun".vtu"
@@ -101,11 +107,11 @@ End
 
 !! for the sheet
 Initial Condition 1 
-  Sheet Thickness = Real $Hs
+  Sheet Thickness = Real #Hs
   Zs = Equals usurf
   Zb = Equals ubed
   Effective Pressure = Variable Zs,Zb
-    Real MATC "rhoi*gravity*(tx(0)-tx(1))"
+    Real LUA "rhoi*gravity*(tx[0]-tx[1])"
 End
 
 !---------------------------------------------------
@@ -114,7 +120,7 @@ End
 
 ! source 1 cm/day
 Body Force 1
-  Hydraulic Potential Volume Source = Real $Source 
+  Hydraulic Potential Volume Source = Real #Source 
 End
 
 !---------------------------------------------------
@@ -123,32 +129,32 @@ End
 
 !! ice material properties in MPa - m - a system 
 Material 1
-  Density = Real $rhoi          
-  Glen Exponent = Real $ng
+  Density = Real #rhoi          
+  Glen Exponent = Real #ng
 
 ! For the sheet 
-  Sheet Conductivity = Real $Ks 
-  Sheet flow exponent alpha = Real $alphas
-  Sheet flow exponent beta = Real $betas
-  Englacial Void Ratio = Real $ev       
+  Sheet Conductivity = Real #Ks 
+  Sheet flow exponent alpha = Real #alphas
+  Sheet flow exponent beta = Real #betas
+  Englacial Void Ratio = Real #ev       
 
-  Sliding Velocity = Real $ub
+  Sliding Velocity = Real #ub
 
-  Bedrock Bump Length = Real $lr
-  Bedrock Bump High = Real $hr
-  Sheet Closure Coefficient = Real $Ar 
+  Bedrock Bump Length = Real #lr
+  Bedrock Bump High = Real #hr
+  Sheet Closure Coefficient = Real #Ar 
 ! For the Channels
-  Channel Conductivity = Real $Kc 
-  Channel flow exponent alpha = Real $alphac
-  Channel flow exponent beta = Real $betac
-  Channel Closure Coefficient = Real $Ac
-  Sheet Width Over Channel = Real $lc
-  Pressure Melting Coefficient = Real $Ct
-  Water Heat Capacity = Real $Cw
+  Channel Conductivity = Real #Kc 
+  Channel flow exponent alpha = Real #alphac
+  Channel flow exponent beta = Real #betac
+  Channel Closure Coefficient = Real #Ac
+  Sheet Width Over Channel = Real #lc
+  Pressure Melting Coefficient = Real #Ct
+  Water Heat Capacity = Real #Cw
 
 ! For both
   Ice Normal Stress = Variable Zs,Zb
-     Real MATC "rhoi*gravity*(tx(0)-tx(1))"
+     Real LUA "rhoi*gravity*(tx[0]-tx[1])"
 End
 
 !---------------------------------------------------
@@ -165,7 +171,7 @@ Solver 1
   Mesh Update Variable = String "dS"
   Mesh Velocity First Zero = Logical True
   Correct Surface = Logical True
-  Minimum Height = Real $minH
+  Minimum Height = Real #minH
 
   Top Surface Variable Name = String "usurf"
   Bottom Surface Variable Name = String "ubed"  
@@ -179,7 +185,7 @@ Solver 2
   Activate Channels = Logical True 
   Activate Melt from Channels = Logical True
   Neglect Sheet Thickness in Potential = Logical True
-  !Max Channel Area = Real $chA
+  !Max Channel Area = Real #chA
 
  ! choices are EXCPLICIT, CRANK-NICOLSON, IMPLICIT
   Channels Integration method = String "Crank-Nicolson"
@@ -233,7 +239,7 @@ Solver 4
   VTU BinaryFile = Logical False 
 
   Channels OutPut Directory Name = String "results"
-  Channels OutPut File Name = String $namerun"_channels"
+  Channels OutPut File Name = String #namerun"_channels"
 End
 
 Solver 5
@@ -286,7 +292,7 @@ End
 Boundary Condition 1
   Target Boundaries(1) = 1
   No Channel BC = Logical True
-  !Sheet Thickness = Real 0.001
+  Sheet Thickness = Real 0.01
 End
 
 ! This is the boundary condition for the moulins, case B5
@@ -295,9 +301,9 @@ Boundary Condition 2
   !Target Boundaries(3) =  2 3 4
   Target Boundaries(20) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
   !Target Boundaries(100) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101
-  Moulin Storage = Logical True
-  Moulin Area = Real $Am
-  Moulin Flux = Real $0.9*yearinsec
+  Moulin Storage = Logical False
+  Moulin Area = Real #Am
+  Moulin Flux = Real #0.9*yearinsec
 End
 
 ! Mind that the numbering continues with the extruded boundaries of the first four - we don't need them, but we have to account for them
@@ -312,6 +318,11 @@ Boundary Condition 5
   Velocity 1 = Real 0.0
   Velocity 2 = Real 0.0
   Velocity 3 = Real 0.0
+  Hydraulic Potential = Variable ubed
+    Real LUA "rhow*gravity*tx[0]"
+  Hydraulic Potential Condition = Variable usurf 
+    Real LUA "minHydroPot(tx[0])" 
+    !Real Procedure "SRC/minHydPot" "minHydPot" 
 End
 
 Boundary Condition 6
