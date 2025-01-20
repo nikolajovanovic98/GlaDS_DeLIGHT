@@ -12,7 +12,7 @@
 #Q1 = 60.0e3
 #Q2 = 115.0e3
 
-#Nz = 5
+#Nz = 10
 #MinH = 1.0
 
 ! SMB Parameters

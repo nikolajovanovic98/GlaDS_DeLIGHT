@@ -32,4 +32,5 @@ source get_outline.sh to run it
 - the user is prompted to give the name of the xy coords csv file (located in glacier dir; give full name!!! e.g., coords.csv)
 - the user is prompted to give the name of the glacier (to navigate to the dir created earlier),
 so it has to be spelled the same way as the dir created 
-- the rest of the script generates the mesh and creates a vtu file hooray  
+- the rest of the script generates the mesh and creates a vtu file hooray 
+- To create a partitioned mesh, comment out the "-metis 4 0" (creates 4 partitions) 

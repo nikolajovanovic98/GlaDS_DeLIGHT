@@ -31,8 +31,8 @@ python Contour2geo.py -r "$res" -i "$txt_file" -o "${MESH}.geo"
 
 gmsh -1 -2 "${MESH}.geo" -o "${MESH}.msh"
 
-ElmerGrid 14 2 "${MESH}.msh" -autoclean #-metis 4 0 
-ElmerGrid 14 5 "${MESH}.msh" -autoclean #-metis 4 0
+ElmerGrid 14 2 "${MESH}.msh" -autoclean  #-metis 4 0 
+ElmerGrid 14 5 "${MESH}.msh" -autoclean  #-metis 4 0
 
 # Move all files to the directory you created in step 1 
 mv "${MESH}"* $glacier_name/ 

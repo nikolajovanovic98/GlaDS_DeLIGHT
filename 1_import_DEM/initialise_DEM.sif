@@ -13,7 +13,7 @@ echo on
 include "Physical_Parameters.IN"
 
 Header
-  Mesh DB "." "ALE1_mesh"
+  Mesh DB "." "4p_ALE_mesh"
 End
 
 Constants
@@ -51,7 +51,7 @@ Solver 1
   Procedure = "GridDataReader" "GridDataReader"
   
   !---- NOTE: File is case sensitive, String is not!
-  Filename = File "ALE_mesh/input_saved.nc"
+  Filename = File "4p_ALE_mesh/input_saved.nc"
   X Dim Name = File "x"
   Y Dim Name = File "y"
 
@@ -84,7 +84,7 @@ Solver 2
   Procedure = "GridDataReader" "GridDataReader"
   
   !---- NOTE: File is case sensitive, String is not!
-  Filename = File "ALE_mesh/input_saved.nc"
+  Filename = File "4p_ALE_mesh/input_saved.nc"
   X Dim Name = File "x"
   Y Dim Name = File "y"
 

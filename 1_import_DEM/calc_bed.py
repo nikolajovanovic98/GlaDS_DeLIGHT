@@ -14,8 +14,20 @@ def main(glacier_dir):
             surf_top = ds.variables['usurf']
             thk = ds.variables['thk']
 
+            # Check for NaN or invalid values
+            print("Checking for NaN or infinite values:")
+            print(f"NaN in surf_top: {np.any(np.isnan(surf_top[:]))}")
+            print(f"NaN in thk: {np.any(np.isnan(thk[:]))}")
+            print(f"Inf in surf_top: {np.any(np.isinf(surf_top[:]))}")
+            print(f"Inf in thk: {np.any(np.isinf(thk[:]))}")
+            
+            # Ensure that dimensions match
+            if surf_top.shape != thk.shape:
+                print(f"Dimension mismatch: surf_top shape {surf_top.shape}, thk shape {thk.shape}")
+                return
+
             # Create bed topography variable
-            bed_top = ds.createVariable('ubed', np.float32, thk.dimensions)
+            bed_top = ds.createVariable('ubed', thk.datatype, thk.dimensions)
             bed_top[:] = surf_top[:] - thk[:]
 
             bed_top.units = 'm'
