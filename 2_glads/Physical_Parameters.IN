@@ -1,0 +1,60 @@
+! All units are in m, year, MPa
+! For ice flow
+
+#yearindays = 365.00
+#yearinsec = yearindays*24*60*60
+#MPainPa = 1.0e6
+
+#Iter = 300                                      ! Number of iterations
+#dtIni = (1.0/yearindays)                        ! Timestep size
+#dtMin = 0.01/yearindays                         ! Minimum timestep size
+#OutPut = 1
+
+#minH   = 1.0                                    ! Minimum height [m]
+
+#ev     = 1.0e-3                                 ! Englacial void ratio [1] 
+#Source = 50.0                                   ! All input in moulins
+
+! Common imput parameters (for all tests SHMIP)
+
+#ub = 100.0
+!$ub = 1.0e-6*yearinsec                           ! Basal sliding velocity  [1.0e-6 m/s]
+
+! Prefactor from Cuffey and Paterson (2010) in MPa^{-3} a^{-1}
+! Temperate ice (power law for SSA)
+#rhoi = 910.0/(MPainPa*yearinsec^2)
+#rhow = 1000.0/(MPainPa*yearinsec^2)
+#A1 = 2.89165e-13*yearinsec*MPainPa^3
+#A2 = 2.42736e-02*yearinsec*MPainPa^3
+
+#ng = 3.0                                         ! Glen's n 
+#Aglen = 2.5e-25*yearinsec*MPainPa^3              ! For conductivity calc. 
+#eta = (2.0*Aglen)^(-1.0/ng)                      ! 
+
+#gravity = 9.81*yearinsec^2                       ! Gravitational acceleration [m/a^2] 
+
+! For the sheet
+#Ar = Aglen                                       ! Sheet closure coefficient 
+#alphas = 1.25                                    ! First sheet flow exponent [1] 
+#betas = 1.5                                      ! Second sheet flow exponent [1]
+#lr = 2.0                                         ! Cavity spacing [m]
+#hr = 0.1                                         ! Bedrock bump height [m]
+#Ks = 0.02*yearinsec*(1.0/MPainPa)^(1.0-betas)   ! Sheet conductivity [m^7/4 kg^-1/2]
+#Hs = 0.05 ! IC for h                             ! Initial sheet thickness [m]
+! 0.02 ks
+! 0.005 before 
+
+! For the Channels
+#alphac = 1.25                                    ! First channel flow exponent
+#betac = 1.5                                      ! Second channel flow exponent
+#Kc = 0.1*yearinsec*(1.0/MPainPa)^(1.0-betac)     ! Channel conductivity [m^3/2 ^-1/2]
+#Ac = Aglen                                       ! Channel closure coefficient
+#lc = 2.0                                         ! Sheet width below channel [m]
+#Ct = -7.5e-8*MPainPa                             ! Pressure melt coefficient [K MPa^-1]
+#Cw = 4220.0*yearinsec^2                          ! Heat capacity of water [m^2 a^-2 K^-1]
+#Lw = 334000.0*yearinsec^2                        ! Latent heat [m/a^2]
+
+#chA = 30.0                                       ! Channel area
+
+! For the Moulins
+#Am = 10.0                                        ! Moulin cross-sectional area [m^2]
