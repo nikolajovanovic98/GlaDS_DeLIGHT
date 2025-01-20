@@ -41,7 +41,7 @@
 #hr = 0.1                                         ! Bedrock bump height [m]
 #Ks = 0.02*yearinsec*(1.0/MPainPa)^(1.0-betas)   ! Sheet conductivity [m^7/4 kg^-1/2]
 #Hs = 0.05 ! IC for h                             ! Initial sheet thickness [m]
-! 0.02 ks
+! 0.02 ks - seems to run better this way
 ! 0.005 before 
 
 ! For the Channels
