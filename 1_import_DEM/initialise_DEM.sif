@@ -12,8 +12,13 @@ echo on
 
 include "Physical_Parameters.IN"
 
+$namemesh = "inversion_test"
+$ncfile   = "inversion_test/input_saved.nc"
+$outfile  = "inv_dem.result" 
+$postfile = "inv_dem.vtu"
+
 Header
-  Mesh DB "." "4p_ALE_mesh"
+  Mesh DB "." $namemesh
 End
 
 Constants
@@ -31,8 +36,8 @@ Simulation
   Steady State Min Iterations = 1
   Steady State Max Iterations = 1
 
-  Output File = "ale_DEM.result"
-  Post File = "ale_DEM.vtu"
+  Output File = $outfile
+  Post File = $postfile
   max output level = 3 
 End
 
@@ -51,7 +56,7 @@ Solver 1
   Procedure = "GridDataReader" "GridDataReader"
   
   !---- NOTE: File is case sensitive, String is not!
-  Filename = File "4p_ALE_mesh/input_saved.nc"
+  Filename = File $ncfile
   X Dim Name = File "x"
   Y Dim Name = File "y"
 
@@ -84,7 +89,7 @@ Solver 2
   Procedure = "GridDataReader" "GridDataReader"
   
   !---- NOTE: File is case sensitive, String is not!
-  Filename = File "4p_ALE_mesh/input_saved.nc"
+  Filename = File $ncfile
   X Dim Name = File "x"
   Y Dim Name = File "y"
 

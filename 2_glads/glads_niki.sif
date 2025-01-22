@@ -19,11 +19,13 @@ echo on
 
 !#Bnum = "B5" 
 $namerun = "glads_3d_niki_"
+$namemesh = "inversion_test"
+$restartfile = "inv_dem.result"
 
 include "Physical_Parameters.IN" 
 
 Header
-  Mesh DB "." "mainmesh" 
+  Mesh DB "." $namemesh 
 End
 
 !---------------------------------------------------
@@ -69,7 +71,7 @@ Simulation
   Preserve Baseline = Logical True
 
   ! Restart? Or loading usurf and ubed? 
-  Restart File = "ale_DEM.result"
+  Restart File = $restartfile
   !Restart Position = -1 
   !Restart Time = Real #Startyear
   Restart Before Initial Conditions = Logical True
@@ -238,7 +240,7 @@ Solver 4
   VTU OutPutFile = Logical True
   VTU BinaryFile = Logical False 
 
-  Channels OutPut Directory Name = String "results"
+  Channels OutPut Directory Name = String $namemesh"/results"
   Channels OutPut File Name = String $namerun"_channels"
 End
 
