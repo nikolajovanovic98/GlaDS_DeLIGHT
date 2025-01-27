@@ -67,7 +67,7 @@ Simulation
   ! Internal extrusion 
   Extruded Mesh Levels = Integer 10 
   Extruded Mesh Ratio = 1.0
-  !Preserve Edges = Logical True
+  Preserve Edges = Logical True
   Preserve Baseline = Logical True
 
   ! Restart? Or loading usurf and ubed? 
