@@ -17,12 +17,16 @@ cp -r ../1_import_DEM/MESH_DIR
 ------------------------------------------------------
 
 - moulin_nodes.py script generates random nodes for moulins and interpolates them to the nearest nodes on the mesh.
-- In moulin_nodes.py: 
+- In moulin_nodes.py, for random moulin generation: 
 	1. Specify the location of the mesh. 
-	2. Specify the power for probability distribution (I set it to 4.)
+	2. Specify the power for probability distribution (I set it to 4.), for random generation.
 	3. Specify the number of moulins. 
-	4. Specify the name of the output file and convert it from txt. to .xy
- 
+	4. Specify the name of the output file and convert it from .txt to .xy
+ - For moulin generation based on basins:
+	1. Specify the location of the mesh.
+	2. Compute basins, moulins at lowest elevations in each basin.
+	3. Interpolate to mesh nodes. 
+	4. Specify the name of the output file and convert it from .txt to .xy
 - In makemoulin.py:
 	- In the command line, simply: makemoulin.py --meshdir mesh_dir --moulin moulin_file --partition number_of_partition
 	- This should add moulins as BCs (The output should be something like "Found 3 moulins on partition 1"
