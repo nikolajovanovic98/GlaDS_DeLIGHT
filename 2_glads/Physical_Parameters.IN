@@ -6,14 +6,14 @@
 #MPainPa = 1.0e6
 
 #Iter = 300                                      ! Number of iterations
-#dtIni = (1.0/yearindays)                        ! Timestep size
-#dtMin = 0.01/yearindays                         ! Minimum timestep size
+#dtIni = (1.0/(yearindays*4))                    ! Timestep size
+#dtMin = 0.01/(yearindays*4)                     ! Minimum timestep size
 #OutPut = 1
 
 #minH   = 1.0                                    ! Minimum height [m]
 
 #ev     = 1.0e-3                                 ! Englacial void ratio [1] 
-#Source = 50.0                                   ! All input in moulins (?) It's geothermal flux and frictional heating
+#Source = 500.0                                  ! All input in moulins (?) It's geothermal flux and frictional heating
 
 ! Common imput parameters (for all tests SHMIP)
 
