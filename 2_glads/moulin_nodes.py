@@ -189,7 +189,7 @@ class MoulinNodesGenerator:
         distances, indices = tree.query(coordinates)
         nearest_nodes = np.column_stack((self.xmesh[indices], self.ymesh[indices]))  
 
-        return nearest_nodes, coordinates
+        return nearest_nodes
 
     
     def interp_random_to_mesh_coords(self, selected_x, selected_y):
@@ -207,7 +207,30 @@ class MoulinNodesGenerator:
 
         return nearest_nodes
     
-    def plot_basin_moulins(self, moulins, nearest_nodes, segments, coordinates):
+    def interp_all_to_mesh_coords(self, selected_x, selected_y, moulins):
+        """
+        Interp both basin- and randomly generated moulins to 
+        mesh coordinates
+        """
+        # Get basin moulin coordinates
+        x_basin = [self.x[moulin[0]] for moulin in moulins]
+        y_basin = [self.y[moulin[1]] for moulin in moulins]
+
+        # Stack all coordinates
+        mesh_coordinates = np.column_stack((self.xmesh, self.ymesh))
+        random_coordinates = np.column_stack((selected_x, selected_y))
+        basin_coordinates = np.column_stack((x_basin, y_basin))
+        coordinates = np.concatenate((basin_coordinates, random_coordinates), axis=0)
+
+        # Create a KDTree
+        tree = cKDTree(mesh_coordinates)
+        distances, indices = tree.query(coordinates)
+        nearest_nodes = np.column_stack((self.xmesh[indices], self.ymesh[indices]))
+
+        return nearest_nodes
+
+    
+    def plot_basin_moulins(self, moulins, nearest_nodes, segments):
         """
         Plot the moulins
         """
@@ -235,7 +258,7 @@ class MoulinNodesGenerator:
             ax.scatter(self.x[moulin[0]], self.y[moulin[1]], color='red', s=100)
 
         ax.scatter(nearest_nodes[:, 0], nearest_nodes[:, 1], color='blue', label='Nearest nodes')
-        ax.scatter(coordinates[:, 0], coordinates[:, 1], color='green', label='Coordinates')
+        #ax.scatter(coordinates[:, 0], coordinates[:, 1], color='green', label='Coordinates')
         ax.legend()
         plt.show()
     
@@ -257,6 +280,40 @@ class MoulinNodesGenerator:
         ax.scatter(nearest_nodes[:, 0], nearest_nodes[:, 1], color='blue', label='Nearest nodes')
         ax.legend()
         plt.show()
+
+    def plot_all_moulins(self, moulins, segments, selected_x, selected_y, nearest_nodes):
+        """
+        Plot both randomly generated and basin moulins
+        and the interpolated nodes.
+        """
+
+        fig, ax = plt.subplots(figsize = (10, 10))
+
+        # Plot the basins 
+        b = ax.imshow(segments,
+                      extent = [self.x.min(), self.x.max(), self.y.min(), self.y.max()],
+                      origin = 'lower',
+                      alpha = 0.9,
+                      cmap = 'tab20')
+
+        plt.colorbar(b, ax = ax, label = "Basin ID")
+
+        ax.set_title('Both methods for moulin generation')
+        ax.set_xlabel('x[m]')
+        ax.set_ylabel('y[m]')      
+
+        # Plot basin moulins
+        first_moulin = moulins[0]
+        ax.scatter(self.x[first_moulin[0]], self.y[first_moulin[1]], color='red', label = 'Basin moulins')
+        
+        for moulin in moulins[1:]:
+            ax.scatter(self.x[moulin[0]], self.y[moulin[1]], color = 'red')
+        
+        ax.scatter(selected_x, selected_y, color = 'green', label = 'Random')
+        ax.scatter(nearest_nodes[:,0], nearest_nodes[:, 1], color = 'blue', label = 'Nearest nodes')
+        ax.legend()
+        plt.show()
+
 
     def save_to_file(self, nearest_nodes, output_path):
         """
@@ -288,22 +345,21 @@ segments = moulin_generator.generate_basins()
 moulin_generator.plot_basins(segments)
 
 # Generate moulins
-moulins = moulin_generator.generate_basin_moulins(segments, elevation_treshold=2800)
+moulins = moulin_generator.generate_basin_moulins(segments, elevation_treshold=2500)
+selected_x, selected_y = moulin_generator.generate_random_moulins(number_of_moulins=30, 
+                                                           power=4, 
+                                                           elevation_treshold=2500)
 
 # Read the mesh file
 moulin_generator.read_mesh()
 
 # Interpolate moulin to mesh coordinates
-nearest_nodes, coordinates = moulin_generator.interp_basin_to_mesh_coords(moulins)
+nearest_nodes = moulin_generator.interp_all_to_mesh_coords(selected_x, selected_y, moulins) 
+#nearest_nodes, coordinates = moulin_generator.interp_basin_to_mesh_coords(moulins)
 
 # Plot moulins
-moulin_generator.plot_basin_moulins(moulins, nearest_nodes, segments, coordinates)
-
-
-# Generate the moulins
-#selected_x, selected_y = moulin_generator.generate_moulins(number_of_moulins=30, 
-#                                                           power=4, 
-#                                                           elevation_treshold=2500)
+moulin_generator.plot_all_moulins(moulins, segments, selected_x, selected_y, nearest_nodes)
+#moulin_generator.plot_basin_moulins(moulins, nearest_nodes, segments)
 
 # Interpolate the moulins to the mesh coordinates
 #nearest_nodes = moulin_generator.interp_to_mesh_coords(selected_x, selected_y)
