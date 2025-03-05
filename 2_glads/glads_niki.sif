@@ -10,22 +10,31 @@
 
 !---LUA BEGIN
 ! function minHydroPot(t)
-!   if t<1746.5 then return 1 else return -1 end
+!   if t<1581.0 then return 1 else return -1 end
 ! end
 !---LUA END
+
+!---LUA BEGIN
+! function minHydroPot2(t)
+!   if t>0 then return 1 else return -1 end
+! end
+!---LUA END
+
+! 1581
+! 1746.5
 
 !check keyword warn 
 echo on 
 
 !#Bnum = "B5" 
-$namerun = "glads_3d_niki_"
-$namemesh = "inversion_test"
-$restartfile = "inv_dem.result"
+$namerun = "glads_3d_hydpot_test_"
+!$namemesh = "inversion_test"
+!$restartfile = "inv_dem.result"
 
 include "Physical_Parameters.IN" 
 
 Header
-  Mesh DB "." $namemesh 
+  Mesh DB "." "ALE_mesh" 
 End
 
 !---------------------------------------------------
@@ -71,7 +80,7 @@ Simulation
   Preserve Baseline = Logical True
 
   ! Restart? Or loading usurf and ubed? 
-  Restart File = $restartfile
+  Restart File = "ALE_dem.result"
   !Restart Position = -1 
   !Restart Time = Real #Startyear
   Restart Before Initial Conditions = Logical True
@@ -179,7 +188,15 @@ Solver 1
   Bottom Surface Variable Name = String "ubed"  
 End
 
-Solver 2
+Solver 2 
+  Exec Solver = Before Simulation
+  Equation = "MaskLowestNode"
+  Procedure = "SRC/minelevmask" "minelevmask"
+
+  Variable = -dofs 1 "LowestElevationMask"
+End
+
+Solver 3
   Equation = "GlaDS Coupled sheet"
   Procedure = "ElmerIceSolvers" "GlaDSCoupledSolver"
   Variable = -dofs 1 "Hydraulic Potential" 
@@ -218,14 +235,14 @@ Solver 2
   Steady State Convergence Tolerance = 1.0e-03
 End
 
-Solver 3 
+Solver 4 
   ! Just here t odeclare the variable Sheet Thickness
   Equation = "GlaDS Thickness sheet"
   Procedure = "ElmerIceSolvers" "GlaDSsheetThickDummy"
   Variable = -dofs 1 "Sheet Thickness"
 End
 
-Solver 4
+Solver 5
   ! Just here for output and declare the Channel Area variable
   ! It is executed simultaneously to saving
   Exec Solver = After Timestep
@@ -240,11 +257,11 @@ Solver 4
   VTU OutPutFile = Logical True
   VTU BinaryFile = Logical False 
 
-  Channels OutPut Directory Name = String $namemesh"/results"
-  Channels OutPut File Name = String $namerun"_channels"
+  Channels OutPut Directory Name = String "results"
+  Channels OutPut File Name = String $namerun"channels"
 End
 
-Solver 5
+Solver 6
   Exec Solver = Never
   Equation = "Navier-Stokes"
   Linear System Solver = Direct     
@@ -274,19 +291,31 @@ Solver 5
   Flow Model = String "Stokes"
 End
 
+Solver 7 
+  Exec Solver = After Timestep 
+  Equation    = "Discharge"
+  Procedure   = "SRC/discharge" "get_Discharge"
+
+  Variable = -dofs 1 "Subglacial Outflow"
+
+  Update Exported Variables = Logical True
+  Exported Variable 1 = -dofs 1 "Sheet Outflow"
+  Exported Variable 2 = -dofs 1 "Channel Outflow"
+End
+
 !---------------------------------------------------
 !---------------- EQUATIONS ------------------------
 !---------------------------------------------------
 
-! Equation for the ice
+! Equation for the ice (1 4 5)
 Equation 1
-  Active Solvers(3) = 1 4 5
+  Active Solvers(4) = 1 2 5 6 
 End
 
 Equation 2 
-  Active Solvers(2) = 2 3 
+  Active Solvers(3) = 3 4 7
 End
-
+! 2 3 6
 !---------------------------------------------------
 !---------------- BOUNDARY CONDITIONS --------------
 !---------------------------------------------------
@@ -295,22 +324,22 @@ Boundary Condition 1
   Target Boundaries(1) = 1
   No Channel BC = Logical True
   Sheet Thickness = Real 0.01
+  !Hydraulic Potential = Real Procedure "SRC/minHydPot" "minHydPot"
 End
 
 ! This is the boundary condition for the moulins, case B5
 Boundary Condition 2
   Name = "moulins"
   !Target Boundaries(3) =  2 3 4
-  Target Boundaries(20) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+  Target Boundaries(38) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
   !Target Boundaries(100) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101
   Moulin Storage = Logical True
   Moulin Area = Real #Am
-  Moulin Flux = Real #0.9*yearinsec
-  !Moulin Flux = Variable TimeStep
-    !Real LUA "0.9*yearinsec*(0.5*math.sin(2*math.pi*(((tx[0]*365)-180)/365)+0.2)+0.5)*(0.5*math.sin(2*math.pi*((tx[0]*365)%1)-(math.pi/2))+0.5)"
+  !Moulin Flux = Real #0.9*yearinsec
+  Moulin Flux = Variable TimeStep
+    Real LUA "0.9*yearinsec*(0.5*math.sin(2*math.pi*(((tx[0]*365)-180)/365)+0.2)+0.5)*(0.5*math.sin(2*math.pi*((tx[0]*365)%1)-(math.pi/2))+0.5)"
 End
 
-End
 
 ! Mind that the numbering continues with the extruded boundaries of the first four - we don't need them, but we have to account for them
 
@@ -326,10 +355,15 @@ Boundary Condition 5
   Velocity 3 = Real 0.0
   Hydraulic Potential = Variable ubed
     Real LUA "rhow*gravity*tx[0]"
-  Hydraulic Potential Condition = Variable usurf 
-    Real LUA "minHydroPot(tx[0])" 
-    !Real Procedure "SRC/minHydPot" "minHydPot" 
+  Hydraulic Potential Condition = Variable LowestElevationMask
+    Real LUA "minHydroPot2(tx[0])"
+    !Real Procedure "SRC/minHydPot" "hpotfunc" 
 End
+
+
+!Real Procedure "SRC/minHydPot2" "hpotfunc"
+!Real LUA "minHydroPot(tx[0])" 
+
 
 Boundary Condition 6
   Name = "surface"
