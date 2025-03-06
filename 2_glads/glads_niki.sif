@@ -336,10 +336,12 @@ Boundary Condition 2
   Moulin Storage = Logical True
   Moulin Area = Real #Am
   !Moulin Flux = Real #0.9*yearinsec
-  Moulin Flux = Variable TimeStep
-    Real LUA "0.9*yearinsec*(0.5*math.sin(2*math.pi*(((tx[0]*365)-180)/365)+0.2)+0.5)*(0.5*math.sin(2*math.pi*((tx[0]*365)%1)-(math.pi/2))+0.5)"
+  Moulin Flux = Variable usurf
+    Real Procedure "SRC/flowrouting" "AdjustMoulinFlux"
+    !Real LUA "0.9*yearinsec*(0.5*math.sin(2*math.pi*(((tx[0]*365)-180)/365)+0.2)+0.5)*(0.5*math.sin(2*math.pi*((tx[0]*365)%1)-(math.pi/2))+0.5)"
 End
 
+!Variable TimeStep
 
 ! Mind that the numbering continues with the extruded boundaries of the first four - we don't need them, but we have to account for them
 
