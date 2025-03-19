@@ -22,12 +22,12 @@ FUNCTION AdjustMoulinFlux( Model, nodenumber, usurf) RESULT(ScaledMoulinFlux)
     CHARACTER(LEN=MAX_NAME_LEN) :: FunctionName
 
     ! Initialise variables
-    TYPE(Variable_t), POINTER   :: usurfVar, QmVar
-    REAL(KIND=dp), POINTER      :: usurfVals(:), QmVals(:)
-    INTEGER, POINTER            :: usurfPerm(:), QmPerm(:)
+    TYPE(Variable_t), POINTER   :: usurfVar, timeVar
+    REAL(KIND=dp), POINTER      :: usurfVals(:), timeVals(:)
+    INTEGER, POINTER            :: usurfPerm(:), timePerm(:)
 
     ! Values to calculate 
-    REAL(KIND=dp)               :: ScaledMoulinFlux
+    REAL(KIND=dp)               :: ScaledMoulinFlux, seasonforc
 
     SAVE terminusNode, min_usurf, highestNode, max_usurf, firstPass
 
@@ -44,13 +44,13 @@ FUNCTION AdjustMoulinFlux( Model, nodenumber, usurf) RESULT(ScaledMoulinFlux)
         CALL FATAL(FunctionName, "Variable ubed not found")
     END IF 
 
-    !QmVar => VariableGet(Model % Mesh % Variables, "Moulin Flux")
-    !IF ( ASSOCIATED( QmVar ) ) THEN 
-    !    QmPerm => QmVar % Perm
-    !    QmVals => QmVar % Values
-    !ELSE
-    !    CALL FATAL(FunctionName, "Variable Moulin Flux not found")
-    !END IF 
+    timeVar => VariableGet(Model % Mesh % Variables, "Time")
+    IF ( ASSOCIATED( timeVar ) ) THEN 
+        !timePerm => timeVar % Perm
+        timeVals => timeVar % Values
+    ELSE
+        CALL FATAL(FunctionName, "Variable Time not found")
+    END IF 
 
     totalNodes = Model % Mesh % NumberOfNodes
 
@@ -78,11 +78,14 @@ FUNCTION AdjustMoulinFlux( Model, nodenumber, usurf) RESULT(ScaledMoulinFlux)
 
     END IF
 
+    seasonforc = (0.5*sin(2*pi*(((timeVals(1)*365)-180)/365)+0.2)+0.5) &
+    *(0.5*sin(2*pi*(timeVals(1)*365)-(pi/2))+0.5)
+
     avg_usurf = (max_usurf + min_usurf) / 2.0 
 
     ElevDiffFactor = (avg_usurf - usurf) / (max_usurf - min_usurf + 1.0d-6)
 
-    ScaledMoulinFlux = 0.9*yearinsec*(1.+ ElevDiffFactor)
+    ScaledMoulinFlux = 0.9*yearinsec*(1.+ ElevDiffFactor)*seasonforc
     
     RETURN
     
