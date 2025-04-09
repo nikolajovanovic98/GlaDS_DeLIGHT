@@ -12,10 +12,11 @@ echo on
 
 include "Physical_Parameters.IN"
 
-$namemesh = "inversion_test"
-$ncfile   = "inversion_test/input_saved.nc"
-$outfile  = "inv_dem.result" 
-$postfile = "inv_dem.vtu"
+!placeholders
+$namemesh = "ale_mesh"
+$ncfile   = "ale_mesh/input_saved.nc"
+$outfile  = "ale_dem.result" 
+$postfile = "ale_dem.vtu"
 
 Header
   Mesh DB "." $namemesh
