@@ -7,7 +7,7 @@ read -p "What glacier are we concerned with again? (spell the dir name) " glacie
 read -p "Bitte CSV file name: " csv_file
 
 # Name of the files _MESH
-read -p "Name of the file (e.g. HIN_mesh): " MESH
+read -p "Name the mesh (all lowercase!!! e.g. ale_mesh): " MESH
 
 csv_file=$glacier_name/$csv_file
 
