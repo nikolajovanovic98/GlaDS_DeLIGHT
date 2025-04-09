@@ -8,9 +8,11 @@
 ### STEP 1 Copy the mesh from 1_import_DEM.
 ------------------------------------------------------
 
-cp -r ../1_import_DEM/MESH_DIR
+cp -r ../1_import_DEM/ale_mesh . 
+mkdir ale_mesh/results
 
-- MESH_DIR needs to contain the .result file from the previous step as well
+- ale_mesh needs to contain the .result file from the previous step as well
+- create a "results" directory in ale_mesh to store channel results
 
 ------------------------------------------------------
 ### STEP 2 Include moulins (optional).            
@@ -28,7 +30,7 @@ cp -r ../1_import_DEM/MESH_DIR
 	3. Interpolate to mesh nodes. 
 	4. Specify the name of the output file and convert it from .txt to .xy
 - In makemoulin.py:
-	- In the command line, simply: makemoulin.py --meshdir mesh_dir --moulin moulin_file --partition number_of_partition
+	- In the command line, simply: makemoulin.py --meshdir ale_mesh --moulin moulin_file --partition number_of_partition
 	- This should add moulins as BCs (The output should be something like "Found 3 moulins on partition 1"
 		- NOTE: If it doesn't find 3 moulin nodes, maybe re-run the moulin_nodes.py script again 
 

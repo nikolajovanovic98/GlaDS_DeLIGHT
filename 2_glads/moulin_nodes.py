@@ -1,4 +1,5 @@
 # Description: This script is used to generate the nodes of the moulins in the glacier.
+# Set moulin kind:
 
 # ------------------ Libraries ------------------
 import numpy as np 
@@ -226,6 +227,9 @@ class MoulinNodesGenerator:
         tree = cKDTree(mesh_coordinates)
         distances, indices = tree.query(coordinates)
         nearest_nodes = np.column_stack((self.xmesh[indices], self.ymesh[indices]))
+        
+        # Remove duplicates
+        nearest_nodes = np.unique(nearest_nodes, axis=0)
 
         return nearest_nodes
 
@@ -321,6 +325,8 @@ class MoulinNodesGenerator:
         """
         np.savetxt(output_path, nearest_nodes, fmt='%f', delimiter=' ')
 
+        print(f'A total of {len(nearest_nodes)} found.')
+
 # ------------------ Main ------------------
 
 # Give the name of the glacier directory to access the netCDF file
@@ -328,9 +334,10 @@ class MoulinNodesGenerator:
 glacier = 'aletsch'
 
 # Define the path to the netCDF file
-nc_path = f'/opt/work/elmer_stuff/0_mesh_time/{glacier}/input_saved.nc'
-mesh_path = 'mainmesh/mesh.nodes'
-#output_path = 'moulin_coords.txt'
+#nc_path = f'/opt/work/elmer_stuff/0_mesh_time/{glacier}/input_saved.nc'
+nc_path = 'ale_mesh/input_saved_millan.nc'
+mesh_path = 'ale_mesh/mesh.nodes'
+output_path = 'test_moulins.txt'
 
 # Create an instance of the class
 moulin_generator = MoulinNodesGenerator(nc_path, mesh_path)
@@ -349,13 +356,13 @@ moulins = moulin_generator.generate_basin_moulins(segments, elevation_treshold=2
 selected_x, selected_y = moulin_generator.generate_random_moulins(number_of_moulins=30, 
                                                            power=4, 
                                                            elevation_treshold=2500)
-
 # Read the mesh file
 moulin_generator.read_mesh()
 
 # Interpolate moulin to mesh coordinates
 nearest_nodes = moulin_generator.interp_all_to_mesh_coords(selected_x, selected_y, moulins) 
 #nearest_nodes, coordinates = moulin_generator.interp_basin_to_mesh_coords(moulins)
+#nearest_nodes = moulin_generator.interp_random_to_mesh_coords(selected_x, selected_y)
 
 # Plot moulins
 moulin_generator.plot_all_moulins(moulins, segments, selected_x, selected_y, nearest_nodes)
@@ -368,4 +375,4 @@ moulin_generator.plot_all_moulins(moulins, segments, selected_x, selected_y, nea
 #moulin_generator.plot_moulins(selected_x, selected_y, nearest_nodes)
 
 # Save the nearest nodes to a file
-#moulin_generator.save_to_file(nearest_nodes, output_path)
+moulin_generator.save_to_file(nearest_nodes, output_path)
