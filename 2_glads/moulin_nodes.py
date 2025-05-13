@@ -1,8 +1,10 @@
 # Description: This script is used to generate the nodes of the moulins in the glacier.
-# Set moulin kind:
+# Set moulin kind: random generation scaled with elevation, watershed, or both 
 
 # ------------------ Libraries ------------------
 import numpy as np 
+import os
+import glob
 import matplotlib.pyplot as plt 
 from netCDF4 import Dataset
 import xarray as xr
@@ -27,7 +29,7 @@ class MoulinNodesGenerator:
 
     def read_nc_files(self):
         """
-        Read the netCDF files and return the data
+        Read the OGGM netCDF files and return the data
         """
         # Load the netCDF file
         ds = xr.open_dataset(self.nc_path)
@@ -40,12 +42,12 @@ class MoulinNodesGenerator:
     
     def plot_usurf(self):
         """
-        Plot the surface of the glacier
+        Plot the surface of the glacier to check
         """
-        # Plot the surface of the glacier
+        # Generate the figure
         fig, ax = plt.subplots(figsize=(10, 10))
 
-        # Plot the surface
+        # Plot the surface (multiplied with ice mask)
         c = ax.pcolormesh(self.x, self.y, self.usurf*self.mask, cmap='viridis')
         ax.set_title('Surface of the glacier')
         ax.set_xlabel('x')
@@ -56,7 +58,7 @@ class MoulinNodesGenerator:
     def generate_basins(self):
         """
         Generate the basins of the glacier
-        using the watershed algorith from skimage library.
+        using the watershed algorithm from skimage library.
         """
 
         # Apply glacier mask (only process ice-covered areas)
@@ -66,7 +68,7 @@ class MoulinNodesGenerator:
         markers = label(local_minima(usurf, connectivity=0.001))[0]
 
         # Apply watershed algorithm
-        segments = watershed(usurf, markers, mask=~np.isnan(usurf))
+        segments = watershed(usurf, markers = markers, mask=~np.isnan(usurf))
 
         return segments
     
@@ -97,9 +99,9 @@ class MoulinNodesGenerator:
         cb2 = plt.colorbar(b, ax=axs[1], label='Basin ID')
         plt.show()
 
-    def generate_basin_moulins(self, segments, elevation_treshold = 2000):
+    def generate_basin_moulins(self, segments, elevation_threshold = 2000):
         """
-        Generate the nodes of the moulins as the lowest elevation in each basin.    
+        Generate the nodes of the moulins as the lowest elevation nodes in each basin.    
         """
         # Get the unique values of the segments
         unique_segments = np.unique(segments[segments > 0])
@@ -120,8 +122,8 @@ class MoulinNodesGenerator:
             # Get the minimum elevation
             min_elevation = np.min(elevations)
 
-            # Check if the minimum elevation is below the treshold
-            if min_elevation < elevation_treshold:
+            # Check if the minimum elevation is below the threshold
+            if min_elevation < elevation_threshold:
                 # Get the index of the minimum elevation
                 index = np.argmin(elevations)
 
@@ -133,7 +135,7 @@ class MoulinNodesGenerator:
 
         return moulins
     
-    def generate_random_moulins(self, number_of_moulins = 30, power = 4, elevation_treshold = 3000):
+    def generate_random_moulins(self, number_of_moulins = 30, power = 4, elevation_threshold = 3000):
         """
         Generate the nodes of the moulins randomly
         with probabilty depending with the elevation.
@@ -144,14 +146,15 @@ class MoulinNodesGenerator:
         usurf = self.usurf.values.flatten()
         mask = self.mask.values.flatten()
 
+        # Get indices where mask != 0
         valid_indices = np.where(usurf*mask != 0)
 
         x = x[valid_indices]
         y = y[valid_indices]
         usurf = usurf[valid_indices]
 
-        if elevation_treshold is not False:
-            valid_indices = np.where(usurf <= elevation_treshold)
+        if elevation_threshold is not False:
+            valid_indices = np.where(usurf <= elevation_threshold)
             x = x[valid_indices]
             y = y[valid_indices]
             usurf = usurf[valid_indices]
@@ -170,9 +173,29 @@ class MoulinNodesGenerator:
         """
         Read the mesh text file
         """
-        # Open the file
-        xmesh = np.loadtxt(self.mesh_path, usecols=(2))
-        ymesh = np.loadtxt(self.mesh_path, usecols=(3))
+
+        x_list = []
+        y_list = []
+
+        if os.path.isfile(mesh_path):
+            # Single mesh file
+            xmesh = np.loadtxt(mesh_path, usecols=(2))
+            ymesh = np.loadtxt(mesh_path, usecols=(3))
+        else:
+            # Look for partitioned mesh files in directory
+            part_files = sorted(glob.glob(os.path.join(mesh_path, "part.*.nodes")))
+
+            if not part_files:
+                raise FileNotFoundError("No mesh file or partitioned files found.")
+
+            for file in part_files:
+                x = np.loadtxt(file, usecols=(2))
+                y = np.loadtxt(file, usecols=(3))
+                x_list.append(x)
+                y_list.append(y)
+
+            xmesh = np.concatenate(x_list)
+            ymesh = np.concatenate(y_list)
         
         return xmesh, ymesh
     
@@ -335,9 +358,9 @@ glacier = 'aletsch'
 
 # Define the path to the netCDF file
 #nc_path = f'/opt/work/elmer_stuff/0_mesh_time/{glacier}/input_saved.nc'
-nc_path = 'ale_mesh/input_saved_millan.nc'
-mesh_path = 'ale_mesh/mesh.nodes'
-output_path = 'test_moulins.txt'
+nc_path = 'partest/input_saved_millan.nc'
+mesh_path = 'partest/mesh.nodes'
+output_path = 'par_moulins.txt'
 
 # Create an instance of the class
 moulin_generator = MoulinNodesGenerator(nc_path, mesh_path)
@@ -352,10 +375,10 @@ segments = moulin_generator.generate_basins()
 moulin_generator.plot_basins(segments)
 
 # Generate moulins
-moulins = moulin_generator.generate_basin_moulins(segments, elevation_treshold=2500)
+moulins = moulin_generator.generate_basin_moulins(segments, elevation_threshold=2500)
 selected_x, selected_y = moulin_generator.generate_random_moulins(number_of_moulins=30, 
                                                            power=4, 
-                                                           elevation_treshold=2500)
+                                                           elevation_threshold=2500)
 # Read the mesh file
 moulin_generator.read_mesh()
 
