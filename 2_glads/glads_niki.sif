@@ -154,7 +154,7 @@ Material 1
 
   !Sliding Velocity = Real #ub
   Sliding Velocity = Variable uvelsurfobs, vvelsurfobs
-    Real LUA "0.8*(0.5*math.sqrt(tx[0]^2+tx[1]^2))"
+    Real LUA "0.8*(math.sqrt(tx[0]^2+tx[1]^2))"
 
   Bedrock Bump Length = Real #lr
   Bedrock Bump High = Real #hr
@@ -196,7 +196,7 @@ End
 Solver 2 
   Exec Solver = Before Simulation
   Equation = "MaskLowestNode"
-  Procedure = "parallelstuff/minelevmask" "minelevmask"
+  Procedure = "parSRC/minelevmask" "minelevmask"
 
   Variable = -dofs 1 "LowestElevationMask"
 End
@@ -209,7 +209,8 @@ Solver 3
   Activate Channels = Logical True 
   Activate Melt from Channels = Logical True
   Neglect Sheet Thickness in Potential = Logical True
-  !Max Channel Area = Real #chA
+  Max Channel Area = Real #chA
+  Max Sheet Thickness = Real #maxThk
 
  ! choices are EXCPLICIT, CRANK-NICOLSON, IMPLICIT
   Channels Integration method = String "Crank-Nicolson"
@@ -302,7 +303,7 @@ Solver 7
   !Exec Solver = Never
   Exec Solver = After Timestep 
   Equation    = "Discharge"
-  Procedure   = "parallelstuff/discharge" "get_Discharge"
+  Procedure   = "parSRC/discharge" "get_Discharge"
 
   Variable = -dofs 1 "Subglacial Outflow"
 
@@ -316,7 +317,7 @@ Solver 8
   !Exec Solver = Never 
   Exec Solver = Before TimeStep
   Equation = "MoulinFlux" 
-  Procedure = "parallelstuff/new_flowrouting" "AdjustMoulinFlux"
+  Procedure = "parSRC/new_flowrouting" "AdjustMoulinFlux"
 
   Variable = -dofs 1 "ScaledMoulinFlux" 
 End 

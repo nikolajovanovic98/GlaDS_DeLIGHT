@@ -26,8 +26,10 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
     REAL(KIND=dp)               :: min_usurf = 10000., max_usurf = 1000., surfElevationValue, avg_usurf
     REAL(KIND=dp)               :: global_min_usurf, global_max_usurf
     REAL(KIND=dp)               :: DayOfYear, timeInDays, ElevDiffFactor
-    REAL(KIND=dp)               :: seasonforc, wintermask, zeromelt
+    REAL(KIND=dp)               :: seasonforc, diurnal, wintermask, zeromelt
     REAL(KIND=dp)               :: yearinsec = 365.0*24.*60.*60.
+    REAL(KIND=dp)               :: GaussianPulse, PulseAmplitude, PulseCentre, PulseWidth
+    REAL(KIND=dp)               :: randomNoise, r, r1, finalMelt
     CHARACTER(LEN=MAX_NAME_LEN) :: SolverName
     CHARACTER(LEN=20)           :: ierr_string
 
@@ -111,9 +113,19 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
            max_usurf = global_max_usurf
     END IF
 
+    ! -----------------------------------------------------------
+    ! ---------------- FORCING SECTION --------------------------
+    ! -----------------------------------------------------------
+
     ! Convert current time (in years) to day of year
     timeInDays = MOD(timeVals(1), 1.0)*365.0
     DayOfYear = timeInDays
+
+    ! Seasonal forcing
+    ! -----------------------------------------------------------
+
+    seasonforc = 0.5*sin(2*pi*((DayOfYear-180)/365)+1.0)+0.5
+    diurnal    = 0.5*sin(2*pi*DayOfYear-(pi/2))+0.5
 
     IF (DayOfYear >= 59.0 .AND. DayOfYear <= 334.0) THEN 
         wintermask = 1.0
@@ -121,15 +133,38 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
         wintermask = 0.0
     END IF 
 
-    ! Seasonal forcing
-    seasonforc = (0.5*sin(2*pi*(((timeVals(1)*365)-180)/365)+1.0)+0.5) &
-    *(0.5*sin(2*pi*(timeVals(1)*365)-(pi/2))+0.5)
-
-    PRINT *, timeVals
-
     ! Seasonal forcing with zero melt in winter 
+    ! ----------------------------------------------------------
+
     zeromelt = seasonforc*wintermask
 
+    ! Gaussian pulse
+    ! ----------------------------------------------------------
+    PulseCentre    = 213.   ! August 1 
+    PulseAmplitude = 1.5    
+    PulseWidth     = 20.  
+    Phase          = ((DayOfYear - PulseCentre + ))
+    GaussianPulse  = PulseAmplitude*EXP(-((DayOfYear-PulseCentre)**2) / (2*PulseWidth)**2)
+
+    ! Random noise
+    ! -----------------------------------------------------------
+    CALL RANDOM_NUMBER(r)
+    randomNoise = 0.2*(r-0.5)         ! Random noise between -0.1 and 0.1
+
+    finalMelt = seasonforc + randomNoise
+
+    IF (finalMelt < 0 ) THEN 
+        finalMelt = 0 
+    ELSE IF (finalMelt > 0 ) THEN 
+        finalMelt = 1
+    END IF
+
+    ! Completely random 
+    ! ------------------------------------------------------------
+    CALL RANDOM_NUMBER(r1)
+    
+
+    ! Calculate average surface elev
     avg_usurf = (max_usurf + min_usurf) / 2.0 
 
     DO nn=1, SIZE(ScaledMoulinFluxVals)
@@ -143,7 +178,7 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
         ElevDiffFactor = (avg_usurf - surfElevationValue) / (max_usurf - min_usurf + 1.0d-6)
         
         ! Calculate Moulin Flux
-        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.9*yearinsec!*(1.+ ElevDiffFactor)*seasonforc
+        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.9*yearinsec*(1.+ ElevDiffFactor)*seasonforc*diurnal
 
     END DO 
 

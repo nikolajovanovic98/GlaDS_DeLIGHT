@@ -1,7 +1,7 @@
 # Instructions on how to read DEM into the mesh 
 
 **THE FOLLOWING SHOULD BE EXECUTED IN A DIR CONTAINING ALL GLACIER MESH DIRs**
-- e.g., /this_dir/GLACIER_MESH_DIR (here, ALE1_mesh for Aletsch) --> all scripts contained in $this_dir (you need Physical_Parameters.IN, glacier dirs, and the scripts detailed below) 
+- e.g., /this_dir/GLACIER_MESH_DIR (here, ale_mesh for Aletsch) --> all scripts contained in $this_dir (you need Physical_Parameters.IN, glacier dirs, and the scripts detailed below) 
 
 ------------------------------------------------------
 ### STEP 1 Calculate bed elevation.
