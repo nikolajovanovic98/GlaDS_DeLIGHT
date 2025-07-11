@@ -1,6 +1,6 @@
-# Automated workflow for glacier mesh generation
+# Automated workflow for glacier mesh generation (multiple glaciers)
 
-**THE FOLLOWING MUST BE EXECUTED IN THE "rgi-regions" DIR
+**THE FOLLOWING MUST BE EXECUTED IN THE "rgi-regions" DIR**
 
 ------------------------------------------------------
 ### STEP 1 Get glacier outline via OGGM and IGM 
