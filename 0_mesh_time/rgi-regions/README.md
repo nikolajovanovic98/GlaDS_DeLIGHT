@@ -6,7 +6,7 @@
 ### STEP 1 Get glacier outline via OGGM and IGM 
 ------------------------------------------------------
 
-source 1-oggm.sh
+*source 1-oggm.sh*
 
 - you will be prompted to give a selection of glacier RGI IDs from a given region (this shoud be a text file, see example) as well as the region name
 - the script runs IGM to download the NetCDF file, creates a directory labeled with the glacier RGI ID and moves the NetCDF file there
@@ -24,8 +24,10 @@ source 1-oggm.sh
 - then, the user is prompted to save the csv file (it should be saved in the glacier dir created in step 1)
 
 ------------------------------------------------------
-### STEP 3 Run 3-get_mesh                       
+### STEP 3 Run 3-get_mesh.sh                      
 ------------------------------------------------------
+
+*source 3-get_mesh.sh*
 
 - this converts the csv file to a readable .txt file 
 - the user is prompted to give the name of the text file containing all glacier IDs as well as the dir of the region in question
