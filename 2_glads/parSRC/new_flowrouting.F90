@@ -140,16 +140,16 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
 
     ! Gaussian pulse
     ! ----------------------------------------------------------
-    PulseCentre    = 213.   ! August 1 
-    PulseAmplitude = 1.5    
-    PulseWidth     = 20.  
-    Phase          = ((DayOfYear - PulseCentre + ))
-    GaussianPulse  = PulseAmplitude*EXP(-((DayOfYear-PulseCentre)**2) / (2*PulseWidth)**2)
+    !PulseCentre    = 213.   ! August 1 
+    !PulseAmplitude = 1.5    
+    !PulseWidth     = 20.  
+    !Phase          = ((DayOfYear - PulseCentre + 1))
+    !GaussianPulse  = PulseAmplitude*EXP(-((DayOfYear-PulseCentre)**2) / (2*PulseWidth)**2)
 
     ! Random noise
     ! -----------------------------------------------------------
-    CALL RANDOM_NUMBER(r)
-    randomNoise = 0.2*(r-0.5)         ! Random noise between -0.1 and 0.1
+    !CALL RANDOM_NUMBER(r)
+    !randomNoise = 0.2*(r-0.5)         ! Random noise between -0.1 and 0.1
 
     finalMelt = seasonforc + randomNoise
 
@@ -178,7 +178,7 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
         ElevDiffFactor = (avg_usurf - surfElevationValue) / (max_usurf - min_usurf + 1.0d-6)
         
         ! Calculate Moulin Flux
-        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.9*yearinsec*(1.+ ElevDiffFactor)*seasonforc*diurnal
+        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.009*yearinsec*(1.+ ElevDiffFactor)*seasonforc*diurnal
 
     END DO 
 
