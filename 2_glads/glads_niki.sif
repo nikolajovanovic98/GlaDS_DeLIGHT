@@ -150,7 +150,7 @@ Material 1
 
   !Sliding Velocity = Real #ub
   Sliding Velocity = Variable uvelsurfobs, vvelsurfobs
-    Real LUA "0.1*(math.sqrt(tx[0]^2+tx[1]^2))"
+    Real LUA "0.2*(math.sqrt(tx[0]^2+tx[1]^2))"
 
   Bedrock Bump Length = Real #lr
   Bedrock Bump High = Real #hr
@@ -358,6 +358,26 @@ End
   !Optimize Bandwidth = False
 !End
 
+
+Solver 11
+  Exec Solver = "After Timestep"
+  Equation = "Save data" 
+  Procedure = "MySaveGridData" "SaveGridData"
+  Output Format = netcdf 
+  Filename Prefix = File "NetCDFTest"
+  Grid dx = Real 50.0
+  Check for Duplicates = Logical True
+  Grid Origin At Corner = Logical True
+  
+  Mask Name = String "Surface Mask"
+  Suppress Extra Dimension = Logical True
+
+  Scalar Field 1 = "ubed"
+  Scalar Field 2 = "Hydraulic Potential"
+  Scalar Field 3 = "usurf" 
+  Scalar Field 4 = "Flux from Moulins"
+End
+
 !---------------------------------------------------
 !---------------- EQUATIONS ------------------------
 !---------------------------------------------------
@@ -368,7 +388,7 @@ Equation 1
 End
 
 Equation 2 
-  Active Solvers(4) = 3 4 7 8
+  Active Solvers(5) = 3 4 7 8 11
 End
 ! 2 3 6
 !---------------------------------------------------
@@ -409,6 +429,7 @@ Boundary Condition 5
   Velocity 1 = Real 0.0
   Velocity 2 = Real 0.0
   Velocity 3 = Real 0.0
+  Surface Mask = Logical True
   Hydraulic Potential = Variable ubed
     Real LUA "rhow*gravity*tx[0]"
   Hydraulic Potential Condition = Variable LowestElevationMask
