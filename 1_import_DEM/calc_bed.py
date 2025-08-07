@@ -5,7 +5,7 @@ import numpy as np
 
 def main(glacier_dir):
     # Load the netCDF file
-    filename = f'{glacier_dir}/input_saved.nc'
+    filename = f'{glacier_dir}/input_saved_cook.nc'
 
     with Dataset(filename, mode='a') as ds:
         if 'ubed' in ds.variables:
