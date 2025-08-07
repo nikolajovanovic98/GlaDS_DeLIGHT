@@ -20,19 +20,17 @@
 ! end
 !---LUA END
 
-! 1581
-! 1746.5
-
 !check keyword warn 
 echo on 
 
+! PLACEHOLDERS 
 !#Bnum = "B5" 
 $namerun = "testrun_"
 $namerun = "glads_3d_hydpot_test_"
-$namemesh = "partest"
-$restartfile = "partest.result"
-$outdir = "partest/results"
-$ncfile = "partest/input_saved_millan.nc"
+$namemesh = "moulintest1"
+$restartfile = "moulintest.result"
+$outdir = "moulintest1/results"
+$ncfile = "moulintest1/input_saved.nc"
 
 include "Physical_Parameters.IN" 
 
@@ -55,8 +53,6 @@ Constants
   Bedrock Variable Name = String "ubed"
   Surface Variable Name = String "usurf" 
 End  
-
-!#Startyear=0.0
 
 !---------------------------------------------------
 !---------------- SIMULATION -----------------------
@@ -154,7 +150,7 @@ Material 1
 
   !Sliding Velocity = Real #ub
   Sliding Velocity = Variable uvelsurfobs, vvelsurfobs
-    Real LUA "0.8*(math.sqrt(tx[0]^2+tx[1]^2))"
+    Real LUA "0.1*(math.sqrt(tx[0]^2+tx[1]^2))"
 
   Bedrock Bump Length = Real #lr
   Bedrock Bump High = Real #hr
@@ -312,7 +308,6 @@ Solver 7
   Exported Variable 2 = -dofs 1 "Channel Outflow"
 End
 
-! third
 Solver 8
   !Exec Solver = Never 
   Exec Solver = Before TimeStep
@@ -354,6 +349,15 @@ Solver 9
   Exported Variable 2 = "vvelsurfobs"
 End
 
+!Solver 10
+  !Equation = "Moulins"
+  !Exec Solver = "Before Simulation"
+  !Procedure = "CryoScope-GLOFs/Elmer/src/SetMoulinMask" "SetMoulinMask"
+  !Variable = -dofs 1 "Moulin Mask"
+  !Moulin Filename = File "test1.xy"
+  !Optimize Bandwidth = False
+!End
+
 !---------------------------------------------------
 !---------------- EQUATIONS ------------------------
 !---------------------------------------------------
@@ -364,7 +368,7 @@ Equation 1
 End
 
 Equation 2 
-  Active Solvers(4) = 3 4 7 8 
+  Active Solvers(4) = 3 4 7 8
 End
 ! 2 3 6
 !---------------------------------------------------
@@ -375,24 +379,20 @@ Boundary Condition 1
   Target Boundaries(1) = 1
   No Channel BC = Logical True
   Sheet Thickness = Real 0.01
-  !Hydraulic Potential = Real Procedure "SRC/minHydPot" "minHydPot"
+  Hydraulic Potential = Variable ubed
+    Real LUA "rhow*gravity*tx[0]"
 End
 
 ! This is the boundary condition for the moulins, case B5
 Boundary Condition 2
   Name = "moulins"
-  !Target Boundaries(3) =  2 3 4
-  !Target Boundaries(37) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38
-  Target Boundaries(35) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 
+  Target Boundaries(48) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
   !Target Boundaries(100) = 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101
   Moulin Storage = Logical True
   Moulin Area = Real #Am
+  !Moulin Flux = Real 0.1
   Moulin Flux = Equals ScaledMoulinFlux 
   !Moulin Flux = Real #0.9*yearinsec
-  !Moulin Flux = Variable usurf
-  !  Real Procedure "SRC/flowrouting" "AdjustMoulinFlux"
-   !Real LUA "0.9*yearinsec*(0.5*math.sin(2*math.pi*(((tx[0]*365)-180)/365)+0.2)+0.5)*(0.5*math.sin(2*math.pi*((tx[0]*365)%1)-(math.pi/2))+0.5)"
-
 End
 
 !Variable TimeStep
