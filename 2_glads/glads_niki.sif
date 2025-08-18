@@ -9,8 +9,8 @@
 ! Written in LUA (SHMIP test) 
 
 !---LUA BEGIN
-! function minHydroPot(t)
-!   if t<1581.0 then return 1 else return -1 end
+! function minHydroPot1(t)
+!   if t==0 then return 1 else return -1 end
 ! end
 !---LUA END
 
@@ -27,10 +27,10 @@ echo on
 !#Bnum = "B5" 
 $namerun = "testrun_"
 $namerun = "glads_3d_hydpot_test_"
-$namemesh = "moulintest1"
+$namemesh = "moulintest"
 $restartfile = "moulintest.result"
-$outdir = "moulintest1/results"
-$ncfile = "moulintest1/input_saved.nc"
+$outdir = "moulintest/results"
+$ncfile = "moulintest/input_saved.nc"
 
 include "Physical_Parameters.IN" 
 
@@ -344,9 +344,11 @@ Solver 9
 
   Variable 1 = File "uvelsurfobs"  
   Variable 2 = File "vvelsurfobs"  
+  Variable 3 = File "icemask"  
 
   Exported Variable 1 = "uvelsurfobs"
   Exported Variable 2 = "vvelsurfobs"
+  Exported Variable 3 = "icemask"
 End
 
 !Solver 10
@@ -359,7 +361,7 @@ End
 !End
 
 
-Solver 11
+Solver 10
   Exec Solver = "After Timestep"
   Equation = "Save data" 
   Procedure = "MySaveGridData" "SaveGridData"
@@ -388,7 +390,7 @@ Equation 1
 End
 
 Equation 2 
-  Active Solvers(5) = 3 4 7 8 11
+  Active Solvers(5) = 3 4 7 8 10
 End
 ! 2 3 6
 !---------------------------------------------------
@@ -399,8 +401,8 @@ Boundary Condition 1
   Target Boundaries(1) = 1
   No Channel BC = Logical True
   Sheet Thickness = Real 0.01
-  Hydraulic Potential = Variable ubed
-    Real LUA "rhow*gravity*tx[0]"
+  !Hydraulic Potential = Variable ubed
+    !Real LUA "rhow*gravity*tx[0]"
 End
 
 ! This is the boundary condition for the moulins, case B5
@@ -429,7 +431,7 @@ Boundary Condition 5
   Velocity 1 = Real 0.0
   Velocity 2 = Real 0.0
   Velocity 3 = Real 0.0
-  Surface Mask = Logical True
+  Surface Mask = Logical True 
   Hydraulic Potential = Variable ubed
     Real LUA "rhow*gravity*tx[0]"
   Hydraulic Potential Condition = Variable LowestElevationMask

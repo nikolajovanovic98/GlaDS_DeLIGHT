@@ -178,7 +178,7 @@ SUBROUTINE AdjustMoulinFlux( Model, Solver, dt, Transient )
         ElevDiffFactor = (avg_usurf - surfElevationValue) / (max_usurf - min_usurf + 1.0d-6)
         
         ! Calculate Moulin Flux
-        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.009*yearinsec*(1.+ ElevDiffFactor)*seasonforc*diurnal
+        ScaledMoulinFluxVals(ScaledMoulinFluxPerm(node)) = 0.9*yearinsec*(1.+ ElevDiffFactor)*seasonforc*diurnal
 
     END DO 
 

@@ -14,7 +14,7 @@
 #minH   = 1.0                                    ! Minimum height [m]
 
 #ev     = 1.0e-3                                 ! Englacial void ratio [1] 
-#Source = 0.0                                   ! All input in moulins (?) It's geothermal flux and frictional heating
+#Source = 0.0                                   ! All put in moulins (?) It's geothermal flux and frictional heating
 
 ! Common imput parameters (for all tests SHMIP)
 
